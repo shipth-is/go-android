@@ -21,6 +21,16 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // Load settings from local.properties
+        val localProperties = java.util.Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localProperties.load(java.io.FileInputStream(localPropertiesFile))
+        }
+
+        buildConfigField("String", "SHIPTHIS_API_KEY", "\"${localProperties.getProperty("SHIPTHIS_API_KEY", "")}\"")
+        buildConfigField("String", "SHIPTHIS_DOMAIN", "\"${localProperties.getProperty("SHIPTHIS_DOMAIN", "shipth.is")}\"")
     }
 
     buildTypes {
@@ -41,6 +51,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.4"
