@@ -87,6 +87,9 @@ android {
 }
 
 dependencies {
+    // ---- Godot Dependencies ----
+    implementation("shipth.is:godot-lib-v4-4-1:0.0.2")
+
     // ---- Compose (M3) ----
     // Use BOM to keep Compose libs aligned
     implementation(platform("androidx.compose:compose-bom:2024.10.01"))
