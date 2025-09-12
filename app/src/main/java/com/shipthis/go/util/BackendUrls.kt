@@ -39,9 +39,9 @@ object BackendUrlProvider {
         val wsDomain = if (isPublic) "ws.$domain" else domain
         
         return BackendUrls(
-            api = "https://$apiDomain/api/1.0.0",
+            api = "https://$apiDomain/api/1.0.0/",
             web = "https://$domain/",
-            ws = "wss://$wsDomain"
+            ws = "wss://$wsDomain/"
         )
     }
     
