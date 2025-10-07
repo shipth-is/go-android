@@ -1,20 +1,13 @@
 package com.shipthis.go.ui.screens.home
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 
@@ -23,6 +16,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -35,7 +29,7 @@ fun HomeScreen(
             text = "Welcome to ShipThis Go!",
             style = MaterialTheme.typography.headlineMedium
         )
-        
+
         // Build ID Input
         OutlinedTextField(
             value = uiState.buildId,
@@ -50,13 +44,12 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             enabled = !uiState.isLoading,
-            singleLine = true,
-            maxLines = 1
+            singleLine = true
         )
-        
-        // Submit Build ID Button
+
+        // Submit Build ID Button → triggers download/unzip/launch
         Button(
-            onClick = { viewModel.submitBuildId() },
+            onClick = { viewModel.submitBuildId(context) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
@@ -64,8 +57,8 @@ fun HomeScreen(
         ) {
             Text("Submit Build ID")
         }
-        
-        // Status Display
+
+        // Status or Error
         when {
             uiState.isLoading -> {
                 CircularProgressIndicator(modifier = Modifier.padding(16.dp))
@@ -79,18 +72,12 @@ fun HomeScreen(
             }
             else -> {
                 Text(
-                    text = uiState.data ?: "No data available",
+                    text = uiState.data ?: "No data yet",
                     modifier = Modifier.padding(16.dp)
                 )
             }
         }
-        
-        // Demo Load Data Button (keeping for now)
-        Button(
-            onClick = { viewModel.loadData() },
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text("Load Demo Data")
-        }
+
+       
     }
 }

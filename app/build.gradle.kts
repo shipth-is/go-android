@@ -88,7 +88,8 @@ android {
 
 dependencies {
     // ---- Godot Dependencies ----
-    implementation("shipth.is:godot-lib-v4-4-1:0.0.2")
+    implementation("shipth.is:godot-lib-v4-4-1:0.0.3:template-release@aar")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     // ---- Compose (M3) ----
     // Use BOM to keep Compose libs aligned
