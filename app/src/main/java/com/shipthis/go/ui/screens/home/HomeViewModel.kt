@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
-import com.shipthis.go.GodotApp
+import com.shipthis.go.GodotAppv4_4_1
 
 import com.shipthis.go.data.repository.SampleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -71,16 +71,15 @@ class HomeViewModel @Inject constructor(
 
                 updateStatus("Launching…")
 
-                // Launch GodotApp activity
-                    val intent = Intent(context, GodotApp::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    context.startActivity(intent)
+                val intent = Intent(context, GodotAppv4_4_1::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
 
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        data = "Build ID '$buildId' submitted and game launched!",
-                        error = null
-                    )
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    data = "Build ID '$buildId' submitted and game launched!",
+                    error = null
+                )
 
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(

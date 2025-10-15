@@ -27,11 +27,21 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.shipthis.go.GodotApp"
+            android:name="com.shipthis.go.GodotAppv4_4_1"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="sensorLandscape" />
+        <activity
+            android:name="com.shipthis.go.GodotAppv4_5"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="sensorLandscape" />
+         <meta-data
+            android:name="org.godotengine.library.version"
+            android:value="4.5.stable"
+            tools:replace="android:value" />
     </application>
 
 </manifest>

@@ -1,7 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
+    id("org.jetbrains.kotlin.plugin.compose")
     id("dagger.hilt.android.plugin")
     id("com.google.devtools.ksp")
 }
@@ -12,7 +12,8 @@ android {
 
     packaging {
         jniLibs {
-            useLegacyPackaging = true
+            pickFirsts += "**/libc++_shared.so"
+            //pickFirsts += "**/libgodot_android.so"
         }
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -74,21 +75,12 @@ android {
         buildConfig = true
     }
 
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.4"
-    }
-
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
 }
 
 dependencies {
     // ---- Godot Dependencies ----
-    implementation("shipth.is:godot-lib-v4-4-1:0.0.3:template-release@aar")
+    implementation("shipth.is:godot-lib-v4-5:0.0.15:template-release@aar")
+    implementation("shipth.is:godot-lib-v4-4-1:0.0.15:template-release@aar")
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     // ---- Compose (M3) ----
@@ -116,11 +108,11 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
 
     // Hilt
-    implementation("com.google.dagger:hilt-android:2.48")
-    kapt("com.google.dagger:hilt-compiler:2.48")
+    implementation("com.google.dagger:hilt-android:2.49")
+    ksp("com.google.dagger:hilt-compiler:2.49")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
-    // Coroutines (align with Kotlin 1.9.x)
+    // Coroutines (align with Kotlin 2.1.0)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 
     // Networking

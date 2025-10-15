@@ -30,7 +30,7 @@
 
 package com.shipthis.go;
 
-import org.godotengine.godotv4_4_1.GodotActivity;
+import org.godotengine.godotv4_5.GodotActivity;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -43,7 +43,7 @@ import com.shipthis.go.BuildConfig;
  * Template activity for Godot Android builds.
  * Feel free to extend and modify this class for your custom logic.
  */
-public class GodotApp extends GodotActivity {
+public class GodotAppv4_5 extends GodotActivity {
 	static {
 		// TPDP: how to do this in shipthis-go?
 		// .NET libraries.
