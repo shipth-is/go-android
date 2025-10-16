@@ -5,9 +5,10 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
+import com.shipthis.go.BuildConfig
 import com.shipthis.go.GodotAppv4_4_1
+import com.shipthis.go.data.repository.GoBuildRepository
 
-import com.shipthis.go.data.repository.SampleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -24,15 +25,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: SampleRepository
+    private val repository: GoBuildRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
-
-    // Hardcoded game URL
-    private val gameUrl =
-        "https://buymelunch-develop.ams3.cdn.digitaloceanspaces.com/test/assets-demo-2025-09-05.zip"
 
     fun updateBuildId(buildId: String) {
         _uiState.value = _uiState.value.copy(buildId = buildId)
@@ -45,12 +42,17 @@ class HomeViewModel @Inject constructor(
             return
         }
 
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null, data = null)
 
-                // Simulate brief delay
-                delay(500)
+                updateStatus("Fetching build details…")
+
+                // Fetch the GoBuild from the API
+                val goBuild = repository.getGoBuild(buildId)
+
+                updateStatus("Build found: ${goBuild.project.name}")
 
                 val assetsDir = File(context.filesDir, "assets")
                 val zipFile = File(context.cacheDir, "game.zip")
@@ -60,7 +62,8 @@ class HomeViewModel @Inject constructor(
                 assetsDir.mkdirs()
 
                 updateStatus("Downloading game…")
-                downloadFile(gameUrl, zipFile) { p ->
+
+                downloadFile(goBuild.url, zipFile) { p ->
                     updateStatus("Downloading… $p%")
                 }
 
@@ -77,7 +80,7 @@ class HomeViewModel @Inject constructor(
 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    data = "Build ID '$buildId' submitted and game launched!",
+                    data = "Build '${goBuild.project.name}' (${goBuild.id}) launched successfully!",
                     error = null
                 )
 

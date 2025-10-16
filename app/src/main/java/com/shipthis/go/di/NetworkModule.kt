@@ -1,7 +1,7 @@
 package com.shipthis.go.di
 
 import com.shipthis.go.BuildConfig
-import com.shipthis.go.data.api.SampleApiService
+import com.shipthis.go.data.api.GoBuildApiService
 import com.shipthis.go.util.BackendUrlProvider
 import dagger.Module
 import dagger.Provides
@@ -58,7 +58,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideSampleApiService(retrofit: Retrofit): SampleApiService {
-        return retrofit.create(SampleApiService::class.java)
+    fun provideGoBuildApiService(retrofit: Retrofit): GoBuildApiService {
+        return retrofit.create(GoBuildApiService::class.java)
     }
 }

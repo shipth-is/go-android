@@ -79,6 +79,7 @@ android {
 
 dependencies {
     // ---- Godot Dependencies ----
+    // Order is important - the first libc++_shared.so is picked - most recent first
     implementation("shipth.is:godot-lib-v4-5:0.0.15:template-release@aar")
     implementation("shipth.is:godot-lib-v4-4-1:0.0.15:template-release@aar")
     implementation("androidx.core:core-splashscreen:1.0.1")
