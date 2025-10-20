@@ -38,6 +38,12 @@
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="sensorLandscape" />
+        <activity
+            android:name="com.shipthis.go.GodotAppv3_x"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="sensorLandscape" />
          <meta-data
             android:name="org.godotengine.library.version"
             android:value="4.5.stable"

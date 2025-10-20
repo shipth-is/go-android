@@ -6,7 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
 import com.shipthis.go.BuildConfig
+import com.shipthis.go.GodotAppv3_x
 import com.shipthis.go.GodotAppv4_4_1
+import com.shipthis.go.GodotAppv4_5
+
 import com.shipthis.go.data.repository.GoBuildRepository
 
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -74,7 +77,16 @@ class HomeViewModel @Inject constructor(
 
                 updateStatus("Launching…")
 
-                val intent = Intent(context, GodotAppv4_4_1::class.java)
+                var gameEngineVersion = goBuild.jobDetails.gameEngineVersion
+                var targetActivity : Class<*>
+
+                when (gameEngineVersion) {
+                    "3.6", "3.6.1", "3.7" -> targetActivity = GodotAppv3_x::class.java
+                    "4.4", "4.4.1" -> targetActivity = GodotAppv4_4_1::class.java
+                    else -> targetActivity = GodotAppv4_5::class.java
+                }
+
+                val intent = Intent(context, targetActivity)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
 
