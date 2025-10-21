@@ -11,12 +11,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 
+import android.app.Activity
+import com.google.zxing.integration.android.IntentIntegrator
+
+import com.shipthis.go.ui.components.rememberQrScannerLauncher
+
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val activity = context as Activity
+
+    val startQrScan = rememberQrScannerLauncher(activity) { result ->
+        if (!result.isNullOrBlank()) {
+            viewModel.updateBuildId(result)
+            viewModel.submitBuildId(context)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -47,15 +60,25 @@ fun HomeScreen(
             singleLine = true
         )
 
-        // Submit Build ID Button → triggers download/unzip/launch
-        Button(
-            onClick = { viewModel.submitBuildId(context) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            enabled = !uiState.isLoading
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Submit Build ID")
+            Button(
+                onClick = startQrScan,
+                modifier = Modifier.weight(1f),
+                enabled = !uiState.isLoading
+            ) {
+                Text("Scan QR")
+            }
+
+            Button(
+                onClick = { viewModel.submitBuildId(context) },
+                modifier = Modifier.weight(1f),
+                enabled = !uiState.isLoading
+            ) {
+                Text("Submit")
+            }
         }
 
         // Status or Error

@@ -78,6 +78,10 @@ android {
 }
 
 dependencies {
+
+    // QR Code Scanner
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+
     // ---- Godot Dependencies ----
     // Order is important - the first libc++_shared.so is picked - most recent first
     implementation("shipth.is:godot-lib-v4-5:0.0.15:template-release@aar")
