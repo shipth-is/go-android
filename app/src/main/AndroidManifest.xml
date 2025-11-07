@@ -27,24 +27,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
+        <!-- <activity
             android:name="com.shipthis.go.GodotAppv4_4_1"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="sensorLandscape" />
-        <activity
+            android:screenOrientation="sensorLandscape" /> -->
+        <!-- <activity
             android:name="com.shipthis.go.GodotAppv4_5"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="sensorLandscape" />
-        <activity
+            android:screenOrientation="sensorLandscape" /> -->
+        <!-- <activity
             android:name="com.shipthis.go.GodotAppv3_x"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="sensorLandscape" /> -->
          <meta-data
             android:name="org.godotengine.library.version"
             android:value="4.5.stable"

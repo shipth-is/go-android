@@ -30,18 +30,43 @@
 
 package com.shipthis.go;
 
-import org.godotengine.godotv3_x.FullScreenGodotApp;
+import org.godotengine.godotv4_5.GodotActivity;
 
 import android.os.Bundle;
+import android.util.Log;
+
+import androidx.core.splashscreen.SplashScreen;
+
+import com.shipthis.go.BuildConfig;
+import com.google.android.play.core.splitcompat.SplitCompat;
 
 /**
- * Template activity for Godot Android custom builds.
+ * Template activity for Godot Android builds.
  * Feel free to extend and modify this class for your custom logic.
  */
-public class GodotAppv3_x extends FullScreenGodotApp {
+public class GodotAppv4_5 extends GodotActivity {
+	static {
+		// TPDP: how to do this in shipthis-go?
+		// .NET libraries.
+		// if (BuildConfig.FLAVOR.equals("mono")) {
+		// 	try {
+		// 		Log.v("GODOT", "Loading System.Security.Cryptography.Native.Android library");
+		// 		System.loadLibrary("System.Security.Cryptography.Native.Android");
+		// 	} catch (UnsatisfiedLinkError e) {
+		// 		Log.e("GODOT", "Unable to load System.Security.Cryptography.Native.Android library");
+		// 	}
+		// }
+	}
+
+	@Override
+	protected void attachBaseContext(android.content.Context newBase) {
+		super.attachBaseContext(newBase);
+		SplitCompat.installActivity(this);
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		//setTheme(R.style.GodotAppMainTheme);
+		SplashScreen.installSplashScreen(this);
 		super.onCreate(savedInstanceState);
 	}
 }

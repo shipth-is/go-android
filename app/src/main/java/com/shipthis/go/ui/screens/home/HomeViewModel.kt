@@ -1,35 +1,34 @@
 package com.shipthis.go.ui.screens.home
 
+// import com.shipthis.go.GodotAppv3_x
+// import com.shipthis.go.GodotAppv4_4_1
+// import com.shipthis.go.GodotAppv4_5
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-
-import com.shipthis.go.BuildConfig
-import com.shipthis.go.GodotAppv3_x
-import com.shipthis.go.GodotAppv4_4_1
-import com.shipthis.go.GodotAppv4_5
-
+import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
+import com.google.android.play.core.splitinstall.SplitInstallRequest
+import com.google.android.play.core.splitinstall.SplitInstallSessionState
+import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListener
+import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 import com.shipthis.go.data.repository.GoBuildRepository
-
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
-    private val repository: GoBuildRepository
-) : ViewModel() {
+class HomeViewModel @Inject constructor(private val repository: GoBuildRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -44,7 +43,6 @@ class HomeViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(error = "Build ID cannot be empty")
             return
         }
-
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -66,43 +64,92 @@ class HomeViewModel @Inject constructor(
 
                 updateStatus("Downloading game…")
 
-                downloadFile(goBuild.url, zipFile) { p ->
-                    updateStatus("Downloading… $p%")
-                }
+                downloadFile(goBuild.url, zipFile) { p -> updateStatus("Downloading… $p%") }
 
                 updateStatus("Unzipping game…")
-                unzip(zipFile, assetsDir) { p ->
-                    updateStatus("Unzipping… $p%")
-                }
+                unzip(zipFile, assetsDir) { p -> updateStatus("Unzipping… $p%") }
 
                 updateStatus("Launching…")
 
                 var gameEngineVersion = goBuild.jobDetails.gameEngineVersion
-                var targetActivity : Class<*>
 
-                when (gameEngineVersion) {
-                    "3.6", "3.6.1", "3.7" -> targetActivity = GodotAppv3_x::class.java
-                    "4.4", "4.4.1" -> targetActivity = GodotAppv4_4_1::class.java
-                    else -> targetActivity = GodotAppv4_5::class.java
-                }
+                launchGame(context, gameEngineVersion)
 
-                val intent = Intent(context, targetActivity)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    data = "Build '${goBuild.project.name}' (${goBuild.id}) launched successfully!",
-                    error = null
-                )
-
+                _uiState.value =
+                        _uiState.value.copy(
+                                isLoading = false,
+                                data =
+                                        "Build '${goBuild.project.name}' (${goBuild.id}) launched successfully!",
+                                error = null
+                        )
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = e.message ?: "Failed: unknown error"
-                )
+                _uiState.value =
+                        _uiState.value.copy(
+                                isLoading = false,
+                                error = e.message ?: "Failed: unknown error"
+                        )
             }
         }
+    }
+
+    private fun launchGame(context: Context, version: String) {
+        val manager = SplitInstallManagerFactory.create(context)
+        val moduleName =
+                when (version) {
+                    "4.5", "4.5.1" -> "godot_v4_5"
+                    else -> "godot_v4_5"
+                }
+
+        if (manager.installedModules.contains(moduleName)) {
+            startGodotActivity(context, version)
+            return
+        }
+
+        val request = SplitInstallRequest.newBuilder().addModule(moduleName).build()
+
+        val listener = object : SplitInstallStateUpdatedListener {
+            override fun onStateUpdate(state: SplitInstallSessionState) {
+                if (state.moduleNames().contains(moduleName)) {
+                    when (state.status()) {
+                        SplitInstallSessionStatus.DOWNLOADING -> {
+                            Log.i(
+                                    "ShipThis",
+                                    "Downloading $moduleName (${state.bytesDownloaded()}/${state.totalBytesToDownload()})"
+                            )
+                        }
+                        SplitInstallSessionStatus.INSTALLING -> {
+                            Log.i("ShipThis", "Installing $moduleName…")
+                        }
+                        SplitInstallSessionStatus.INSTALLED -> {
+                            Log.i("ShipThis", "$moduleName installed, launching")
+                            manager.unregisterListener(this)
+                            startGodotActivity(context, version)
+                        }
+                        SplitInstallSessionStatus.FAILED -> {
+                            Log.e("ShipThis", "Install failed: ${state.errorCode()}")
+                            manager.unregisterListener(this)
+                        }
+                    }
+                }
+            }
+        }
+
+        manager.registerListener(listener)
+        manager.startInstall(request)
+    }
+
+    private fun startGodotActivity(context: Context, version: String) {
+        val className =
+                when (version) {
+                    "4.5", "4.5.1" -> "com.shipthis.go.GodotAppv4_5"
+                    "4.4", "4.4.1" -> "com.shipthis.go.GodotAppv4_4"
+                    else -> "com.shipthis.go.GodotAppv4_5"
+                }
+
+        val intent = Intent()
+        intent.setClassName(context.packageName, className)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
     }
 
     private fun updateStatus(msg: String) {
@@ -117,7 +164,8 @@ class HomeViewModel @Inject constructor(
         conn.readTimeout = 300000
         conn.connect()
         val code = conn.responseCode
-        if (code != HttpURLConnection.HTTP_OK) throw IOException("HTTP $code: ${conn.responseMessage}")
+        if (code != HttpURLConnection.HTTP_OK)
+                throw IOException("HTTP $code: ${conn.responseMessage}")
 
         val length = conn.contentLength
         var total = 0L
@@ -181,9 +229,7 @@ class HomeViewModel @Inject constructor(
 
     private fun countZipEntries(zip: File): Int {
         var count = 0
-        ZipInputStream(FileInputStream(zip)).use { zis ->
-            while (zis.nextEntry != null) count++
-        }
+        ZipInputStream(FileInputStream(zip)).use { zis -> while (zis.nextEntry != null) count++ }
         return count
     }
 
@@ -195,8 +241,8 @@ class HomeViewModel @Inject constructor(
 }
 
 data class HomeUiState(
-    val isLoading: Boolean = false,
-    val data: String? = null,
-    val error: String? = null,
-    val buildId: String = ""
+        val isLoading: Boolean = false,
+        val data: String? = null,
+        val error: String? = null,
+        val buildId: String = ""
 )

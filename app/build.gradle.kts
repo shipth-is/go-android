@@ -10,10 +10,19 @@ android {
     namespace = "com.shipthis.go"
     compileSdk = 35
 
+    dynamicFeatures += setOf(
+        ":godot_v4_5",
+    )
+
     packaging {
         jniLibs {
             pickFirsts += "**/libc++_shared.so"
             //pickFirsts += "**/libgodot_android.so"
+            excludes += listOf(
+                "**/armeabi-v7a/**",
+                "**/x86/**",
+                "**/x86_64/**"
+            )
         }
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -40,6 +49,10 @@ android {
 
         buildConfigField("String", "SHIPTHIS_DOMAIN", "\"$shipthisDomain\"")
         buildConfigField("String", "SHIPTHIS_API_KEY", "\"$shipthisApiKey\"")
+
+         ndk {
+            abiFilters += listOf("arm64-v8a")
+        }
     }
 
     signingConfigs {
@@ -52,8 +65,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            isShrinkResources = false
+            isMinifyEnabled = false
+        }
         release {
             signingConfig = signingConfigs.getByName("release")
+            isShrinkResources = false
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -84,9 +102,9 @@ dependencies {
 
     // ---- Godot Dependencies ----
     // Order is important - the first libc++_shared.so is picked - most recent first
-    implementation("shipth.is:godot-lib-v4-5:0.0.15:template-release@aar")
-    implementation("shipth.is:godot-lib-v4-4-1:0.0.15:template-release@aar")
-    implementation("shipth.is:godot-lib-v3-x:0.0.21:template-release@aar")
+    //implementation("shipth.is:godot-lib-v4-4-1:0.0.15:template-release@aar")
+    //implementation("shipth.is:godot-lib-v3-x:0.0.21:template-release@aar")
+    implementation("shipth.is:godot-lib-v4-5:0.0.24:template-release@aar")
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     // ---- Compose (M3) ----
@@ -112,6 +130,7 @@ dependencies {
 
     // Core
     implementation("androidx.core:core-ktx:1.12.0")
+    implementation("com.google.android.play:core:1.10.3") // Needed for Play Feature Delivery
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.49")

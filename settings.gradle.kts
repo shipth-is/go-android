@@ -29,3 +29,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ShipThis Go"
 include(":app")
+include(":godot_v4_5")
