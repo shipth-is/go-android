@@ -1,8 +1,5 @@
 package com.shipthis.go.ui.screens.home
 
-// import com.shipthis.go.GodotAppv3_x
-// import com.shipthis.go.GodotAppv4_4_1
-// import com.shipthis.go.GodotAppv4_5
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -97,6 +94,7 @@ class HomeViewModel @Inject constructor(private val repository: GoBuildRepositor
         val moduleName =
                 when (version) {
                     "4.5", "4.5.1" -> "godot_v4_5"
+                    "3.6", "3.6.1", "3.6.2" -> "godot_v3_x"
                     else -> "godot_v4_5"
                 }
 
@@ -142,7 +140,7 @@ class HomeViewModel @Inject constructor(private val repository: GoBuildRepositor
         val className =
                 when (version) {
                     "4.5", "4.5.1" -> "com.shipthis.go.GodotAppv4_5"
-                    "4.4", "4.4.1" -> "com.shipthis.go.GodotAppv4_4"
+                    "3.6", "3.6.1", "3.6.2" -> "com.shipthis.go.GodotAppv3_x"
                     else -> "com.shipthis.go.GodotAppv4_5"
                 }
 

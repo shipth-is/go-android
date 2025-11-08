@@ -12,13 +12,14 @@ android {
 
     dynamicFeatures += setOf(
         ":godot_v4_5",
+        ":godot_v3_x"
     )
 
     packaging {
         jniLibs {
             pickFirsts += "**/libc++_shared.so"
-            //pickFirsts += "**/libgodot_android.so"
             excludes += listOf(
+                // TODO: we want to remove this exclusion
                 "**/armeabi-v7a/**",
                 "**/x86/**",
                 "**/x86_64/**"
@@ -101,10 +102,9 @@ dependencies {
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
     // ---- Godot Dependencies ----
-    // Order is important - the first libc++_shared.so is picked - most recent first
-    //implementation("shipth.is:godot-lib-v4-4-1:0.0.15:template-release@aar")
-    //implementation("shipth.is:godot-lib-v3-x:0.0.21:template-release@aar")
-    implementation("shipth.is:godot-lib-v4-5:0.0.24:template-release@aar")
+    // Imported here so we get the most recent version of libc++_shared.so
+    // the dynamic feature modules exclude libc++_shared.so
+    implementation("shipth.is:godot-lib-v4-5:0.0.25:template-release@aar")
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     // ---- Compose (M3) ----

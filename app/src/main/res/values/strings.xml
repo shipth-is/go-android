@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">ShipThis Go</string>
     <string name="title_godot_v4_5">Godot Engine 4.5</string>
+    <string name="title_godot_v3_x">Godot Engine 3.x</string>
 </resources>

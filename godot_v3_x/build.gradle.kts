@@ -22,7 +22,7 @@ android {
 dependencies {
     implementation(project(":app"))
     implementation("androidx.fragment:fragment:1.8.5")
-    implementation("shipth.is:godot-lib-v4-5:0.0.25:template-release@aar")
+    implementation("shipth.is:godot-lib-v3-x:0.0.26:template-release@aar")
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("com.google.android.play:core:1.10.3")
 }
