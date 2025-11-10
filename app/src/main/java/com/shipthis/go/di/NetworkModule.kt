@@ -1,8 +1,12 @@
 package com.shipthis.go.di
 
-import com.shipthis.go.BuildConfig
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.shipthis.go.data.api.AuthApiService
 import com.shipthis.go.data.api.GoBuildApiService
+import com.shipthis.go.data.repository.AuthRepository
 import com.shipthis.go.util.BackendUrlProvider
+import dagger.Lazy
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,39 +24,56 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideGson(): Gson {
+        return GsonBuilder().create()
+    }
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(
+        authRepository: Lazy<AuthRepository> // Use Lazy to break circular dependency
+    ): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
 
-        val apiKeyInterceptor = Interceptor { chain ->
+        val authInterceptor = Interceptor { chain ->
             val originalRequest = chain.request()
-            val apiKey = BuildConfig.SHIPTHIS_API_KEY
 
-            val newRequest = if (apiKey.isNotEmpty()) {
+            // Get JWT from auth repository
+            val jwt = authRepository.get().getJwt()
+
+            val newRequest = if (jwt != null) {
                 originalRequest.newBuilder()
-                    .addHeader("Authorization", "Bearer $apiKey")
+                    .addHeader("Authorization", "Bearer $jwt")
                     .build()
             } else {
                 originalRequest
             }
 
-            chain.proceed(newRequest)
+            val response = chain.proceed(newRequest)
+
+            // Handle 401 - clear invalid JWT
+            if (response.code == 401) {
+                authRepository.get().handleUnauthorized()
+            }
+
+            response
         }
 
         return OkHttpClient.Builder()
-            .addInterceptor(apiKeyInterceptor)
+            .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
             .build()
     }
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BackendUrlProvider.getApiUrl())
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
@@ -60,5 +81,11 @@ object NetworkModule {
     @Singleton
     fun provideGoBuildApiService(retrofit: Retrofit): GoBuildApiService {
         return retrofit.create(GoBuildApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthApiService(retrofit: Retrofit): AuthApiService {
+        return retrofit.create(AuthApiService::class.java)
     }
 }
