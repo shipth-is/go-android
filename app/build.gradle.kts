@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
     id("dagger.hilt.android.plugin")
     id("com.google.devtools.ksp")
+    id("LogInterceptorPlugin")
 }
 
 android {
