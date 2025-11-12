@@ -44,13 +44,7 @@ android {
             .orElse("shipth.is")
             .get()
 
-        val shipthisApiKey = providers
-            .environmentVariable("SHIPTHIS_API_KEY")
-            .orElse("")
-            .get()
-
         buildConfigField("String", "SHIPTHIS_DOMAIN", "\"$shipthisDomain\"")
-        buildConfigField("String", "SHIPTHIS_API_KEY", "\"$shipthisApiKey\"")
 
          ndk {
             abiFilters += listOf("arm64-v8a")
@@ -146,6 +140,9 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // Socket.IO
+    implementation("io.socket:socket.io-client:2.1.1")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

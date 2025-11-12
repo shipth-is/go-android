@@ -26,6 +26,7 @@ object LogInterceptor {
     private val logVThrowable: Method = logClass.getMethod("v", String::class.java, String::class.java, Throwable::class.java)
     
     fun setLogHandler(handler: LogHandler) {
+        logI.invoke(null, "LogInterceptor", "Log handler set")
         logHandler = handler
     }
     
