@@ -27,27 +27,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- <activity
-            android:name="com.shipthis.go.GodotAppv4_4_1"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="sensorLandscape" /> -->
-        <!-- <activity
-            android:name="com.shipthis.go.GodotAppv4_5"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="sensorLandscape" /> -->
-        <!-- <activity
-            android:name="com.shipthis.go.GodotAppv3_x"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="sensorLandscape" /> -->
-         <meta-data
+        <activity
+            android:name=".QrScannerActivity"
+            android:screenOrientation="portrait"
+            android:stateNotNeeded="true" />
+        <meta-data
             android:name="org.godotengine.library.version"
-            android:value="4.5.stable"
+            android:value="4.5.1.stable"
             tools:replace="android:value" />
     </application>
 

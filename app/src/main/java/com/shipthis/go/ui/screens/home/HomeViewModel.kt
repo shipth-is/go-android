@@ -11,6 +11,8 @@ import com.google.android.play.core.splitinstall.SplitInstallSessionState
 import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListener
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 import com.shipthis.go.data.repository.GoBuildRepository
+import com.shipthis.go.util.CrashMarker
+import com.shipthis.go.util.SocketLogHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.io.*
 import java.net.HttpURLConnection
@@ -25,7 +27,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(private val repository: GoBuildRepository) : ViewModel() {
+class HomeViewModel @Inject constructor(
+    private val repository: GoBuildRepository,
+    private val socketLogHandler: SocketLogHandler
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -67,6 +72,12 @@ class HomeViewModel @Inject constructor(private val repository: GoBuildRepositor
                 unzip(zipFile, assetsDir) { p -> updateStatus("Unzipping… $p%") }
 
                 updateStatus("Launching…")
+
+                // Set buildId in log handler for runtime logging
+                socketLogHandler.setBuildId(goBuild.id)
+
+                // Mark the start of this runtime session
+                CrashMarker.markStart(context, goBuild.id)
 
                 var gameEngineVersion = goBuild.jobDetails.gameEngineVersion
 

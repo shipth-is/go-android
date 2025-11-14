@@ -39,6 +39,7 @@ import androidx.core.splashscreen.SplashScreen;
 
 import com.shipthis.go.BuildConfig;
 import com.google.android.play.core.splitcompat.SplitCompat;
+import com.shipthis.go.util.CrashMarker;
 
 /**
  * Template activity for Godot Android builds.
@@ -68,5 +69,12 @@ public class GodotAppv4_5 extends GodotActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		SplashScreen.installSplashScreen(this);
 		super.onCreate(savedInstanceState);
+	}
+
+	@Override
+	protected void onDestroy() {
+		// Mark clean exit before Godot shuts down
+		CrashMarker.markCleanExit(this);
+		super.onDestroy();
 	}
 }

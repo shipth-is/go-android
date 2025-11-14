@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
     id("dagger.hilt.android.plugin")
     id("com.google.devtools.ksp")
+    id("LogInterceptorPlugin")
 }
 
 android {
@@ -43,13 +44,7 @@ android {
             .orElse("shipth.is")
             .get()
 
-        val shipthisApiKey = providers
-            .environmentVariable("SHIPTHIS_API_KEY")
-            .orElse("")
-            .get()
-
         buildConfigField("String", "SHIPTHIS_DOMAIN", "\"$shipthisDomain\"")
-        buildConfigField("String", "SHIPTHIS_API_KEY", "\"$shipthisApiKey\"")
 
          ndk {
             abiFilters += listOf("arm64-v8a")
@@ -104,7 +99,12 @@ dependencies {
     // ---- Godot Dependencies ----
     // Imported here so we get the most recent version of libc++_shared.so
     // the dynamic feature modules exclude libc++_shared.so
-    implementation("shipth.is:godot-lib-v4-5:0.0.25:template-release@aar")
+    val localAarPath = file("libs/godot-lib.template_debug.aar")
+    if (localAarPath.exists()) {
+        implementation(files(localAarPath))
+    } else {
+        implementation("shipth.is:godot-lib-v4-5:0.0.30:template-debug@aar")
+    }
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     // ---- Compose (M3) ----
@@ -145,6 +145,9 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // Socket.IO
+    implementation("io.socket:socket.io-client:2.1.1")
 
     // Testing
     testImplementation("junit:junit:4.13.2")
