@@ -35,6 +35,7 @@ import org.godotengine.godotv3_x.FullScreenGodotApp;
 import android.os.Bundle;
 
 import com.google.android.play.core.splitcompat.SplitCompat;
+import com.shipthis.go.util.CrashMarker;
 
 /**
  * Template activity for Godot Android custom builds.
@@ -52,5 +53,12 @@ public class GodotAppv3_x extends FullScreenGodotApp {
 	public void onCreate(Bundle savedInstanceState) {
 		//setTheme(R.style.GodotAppMainTheme);
 		super.onCreate(savedInstanceState);
+	}
+
+	@Override
+	public void onDestroy() {
+		// Mark clean exit before Godot shuts down
+		CrashMarker.markCleanExit(this);
+		super.onDestroy();
 	}
 }

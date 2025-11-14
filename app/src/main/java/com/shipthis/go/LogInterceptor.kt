@@ -65,6 +65,11 @@ object LogInterceptor {
         logHandler?.handleLog("ERROR", tag, msg)
         return logWtf.invoke(null, tag, msg) as Int
     }
+
+    @JvmStatic
+    fun raw(tag: String, msg: String): Int {
+        return logI.invoke(null, tag, msg) as Int
+    }
     
     // Add overloads if needed (with Throwable, etc.)
     @JvmStatic
