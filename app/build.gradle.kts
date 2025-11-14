@@ -99,7 +99,12 @@ dependencies {
     // ---- Godot Dependencies ----
     // Imported here so we get the most recent version of libc++_shared.so
     // the dynamic feature modules exclude libc++_shared.so
-    implementation("shipth.is:godot-lib-v4-5:0.0.25:template-release@aar")
+    val localAarPath = file("libs/godot-lib.template_debug.aar")
+    if (localAarPath.exists()) {
+        implementation(files(localAarPath))
+    } else {
+        implementation("shipth.is:godot-lib-v4-5:0.0.30:template-debug@aar")
+    }
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     // ---- Compose (M3) ----
