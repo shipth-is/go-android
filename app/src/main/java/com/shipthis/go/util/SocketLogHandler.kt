@@ -42,6 +42,9 @@ class SocketLogHandler @Inject constructor(
     // Buffer for crash logs waiting for socket connection
     private val pendingCrashLogs = mutableListOf<Pair<String, String>>() // Pair<tag, message>
 
+    // Sequence counter for crash logs (server will reorder by sequence)
+    private var crashLogSequenceCounter: Long = 0
+
     init {
         // Observe auth state changes
         authRepository.isLoggedIn
@@ -89,6 +92,7 @@ class SocketLogHandler @Inject constructor(
                 }
 
                 currentBuildId = crashedBuildId
+                crashLogSequenceCounter = 0  // Reset sequence counter for this crash replay
                 log("Set buildId in handler: $crashedBuildId")
 
                 val crashesDir = File(context.filesDir, "crashes")
@@ -98,6 +102,9 @@ class SocketLogHandler @Inject constructor(
                 if (last10File.exists()) {
                     val last10Lines = last10File.readLines()
                     log("Found ${last10Lines.size} lines in last10.txt")
+                    pendingCrashLogs.add("CrashRecovery" to  "-".repeat(20))
+                    pendingCrashLogs.add("CrashRecovery" to "Replaying the last ten captured log lines")
+                    pendingCrashLogs.add("CrashRecovery" to  "-".repeat(20))
                     last10Lines
                         .filter { it.isNotBlank() }
                         .forEach { pendingCrashLogs.add("CrashRecovery" to it) }
@@ -110,6 +117,9 @@ class SocketLogHandler @Inject constructor(
                 if (crashFile.exists()) {
                     val crashLines = crashFile.readLines()
                     log("Found ${crashLines.size} lines in crash.txt")
+                    pendingCrashLogs.add("CrashRecovery" to  "-".repeat(20))
+                    pendingCrashLogs.add("CrashRecovery" to "Replaying crash log")
+                    pendingCrashLogs.add("CrashRecovery" to  "-".repeat(20))
                     crashLines
                         .filter { it.isNotBlank() }
                         .forEach { pendingCrashLogs.add("CrashRecovery" to it) }
@@ -141,8 +151,14 @@ class SocketLogHandler @Inject constructor(
             return
         }
 
-        logs.forEach { (tag, message) ->
-            handleLog("ERROR", tag, message, connectedSocket)
+        // Send logs concurrently with sequence numbers (server will reorder)
+        handlerScope.launch {
+            logs.forEach { (tag, message) ->
+                val sequence = crashLogSequenceCounter++
+                launch {
+                    sendLog("ERROR", tag, message, connectedSocket, sequence)
+                }
+            }
         }
     }
 
@@ -162,21 +178,40 @@ class SocketLogHandler @Inject constructor(
             return
         }
 
+        // Launch concurrent coroutine for real-time logs (non-blocking, order doesn't matter)
         handlerScope.launch {
-            try {
-                val logData = BuildRuntimeLogData(
-                    buildId = buildId,
-                    level = level,
-                    message = "[$tag] $message",
-                    details = null,
-                    sentAt = Instant.now().toString()
-                )
+            sendLog(level, tag, message, socketInstance)
+        }
+    }
 
-                val json = JSONObject(gson.toJson(logData))
-                socketInstance.emit("build:runtime-log", json)
-            } catch (e: Exception) {
-                LogInterceptor.raw("SocketLogHandler", "Failed to send log: ${e.message}")
+    // Shared suspend function for sending logs - executes synchronously within a coroutine
+    private suspend fun sendLog(
+        level: String,
+        tag: String,
+        message: String,
+        socketInstance: Socket,
+        sequence: Long? = null
+    ) {
+        try {
+            val buildId = currentBuildId
+            if (buildId == null) {
+                LogInterceptor.raw("SocketLogHandler", "No buildId set, skipping log")
+                return
             }
+
+            val logData = BuildRuntimeLogData(
+                buildId = buildId,
+                level = level,
+                message = "[$tag] $message",
+                details = null,
+                sentAt = Instant.now().toString(),
+                sequence = sequence
+            )
+
+            val json = JSONObject(gson.toJson(logData))
+            socketInstance.emit("build:runtime-log", json)
+        } catch (e: Exception) {
+            LogInterceptor.raw("SocketLogHandler", "Failed to send log: ${e.message}")
         }
     }
 
