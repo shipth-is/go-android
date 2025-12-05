@@ -9,6 +9,7 @@ data class BuildRuntimeLogData(
     val message: String,
     val details: Any? = null,
     @SerializedName("sentAt")
-    val sentAt: String? = null
+    val sentAt: String? = null,
+    val sequence: Long
 )
 

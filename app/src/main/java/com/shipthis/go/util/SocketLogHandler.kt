@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.net.URISyntaxException
 import java.time.Instant
+import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Singleton
 import org.json.JSONObject
@@ -41,6 +42,9 @@ class SocketLogHandler @Inject constructor(
 
     // Buffer for crash logs waiting for socket connection
     private val pendingCrashLogs = mutableListOf<Pair<String, String>>() // Pair<tag, message>
+
+    // Atomic counter for sequence numbers (thread-safe for concurrent logging)
+    private val sequenceCounter = AtomicLong(0)
 
     init {
         // Observe auth state changes
@@ -164,12 +168,14 @@ class SocketLogHandler @Inject constructor(
 
         handlerScope.launch {
             try {
+                val sequence = sequenceCounter.getAndIncrement()
                 val logData = BuildRuntimeLogData(
                     buildId = buildId,
                     level = level,
                     message = "[$tag] $message",
                     details = null,
-                    sentAt = Instant.now().toString()
+                    sentAt = Instant.now().toString(),
+                    sequence = sequence
                 )
 
                 val json = JSONObject(gson.toJson(logData))
