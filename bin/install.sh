@@ -23,7 +23,7 @@ done
 if [ -z "$apksFile" ]; then
   apksFile=$(ls -t app/build/outputs/bundle/debug/*.apks 2>/dev/null | head -n 1 || true)
   if [ -z "$apksFile" ]; then
-    echo "No .apks file found. Run buildAab.sh first."
+    echo "No .apks file found. Run build.sh first."
     exit 1
   fi
 fi

@@ -9,6 +9,9 @@ if [ ! -f .env ]; then
   exit 1
 fi
 
+echo "Using the following values from .env:"
+grep -v '^#' .env
+
 export $(grep -v '^#' .env | xargs)
 
 # Flags
