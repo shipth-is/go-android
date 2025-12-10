@@ -44,7 +44,8 @@ class SocketLogHandler @Inject constructor(
     private val pendingCrashLogs = mutableListOf<Pair<String, String>>() // Pair<tag, message>
 
     // Atomic counter for sequence numbers (thread-safe for concurrent logging)
-    private val sequenceCounter = AtomicLong(0)
+    // The sequence must start from 1
+    private val sequenceCounter = AtomicLong(1)
 
     init {
         // Observe auth state changes
@@ -168,18 +169,24 @@ class SocketLogHandler @Inject constructor(
 
         handlerScope.launch {
             try {
-                val sequence = sequenceCounter.getAndIncrement()
-                val logData = BuildRuntimeLogData(
-                    buildId = buildId,
-                    level = level,
-                    message = "[$tag] $message",
-                    details = null,
-                    sentAt = Instant.now().toString(),
-                    sequence = sequence
-                )
+                // Split message by newlines and filter out empty lines
+                val lines = message.lines().filter { it.isNotBlank() }
 
-                val json = JSONObject(gson.toJson(logData))
-                socketInstance.emit("build:runtime-log", json)
+                // Send each line as a separate log entry
+                for (line in lines) {
+                    val sequence = sequenceCounter.getAndIncrement()
+                    val logData = BuildRuntimeLogData(
+                        buildId = buildId,
+                        level = level,
+                        message = "[$tag] $line",
+                        details = null,
+                        sentAt = Instant.now().toString(),
+                        sequence = sequence
+                    )
+
+                    val json = JSONObject(gson.toJson(logData))
+                    socketInstance.emit("build:runtime-log", json)
+                }
             } catch (e: Exception) {
                 LogInterceptor.raw("SocketLogHandler", "Failed to send log: ${e.message}")
             }
