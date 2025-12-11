@@ -99,7 +99,7 @@ dependencies {
     // ---- Godot Dependencies ----
     // Imported here so we get the most recent version of libc++_shared.so
     // the dynamic feature modules exclude libc++_shared.so
-    val localAarPath = file("libs/godot-lib.template_debug.aar")
+    val localAarPath = file("libs/godot-lib-v4-5.template_debug.aar")
     if (localAarPath.exists()) {
         implementation(files(localAarPath))
     } else {
