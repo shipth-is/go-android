@@ -22,7 +22,7 @@ android {
 dependencies {
     implementation(project(":app"))
     implementation("androidx.fragment:fragment:1.8.5")
-    val localAarPath = file("../app/libs/godot-lib.template_debug.aar")
+    val localAarPath = file("../app/libs/godot-lib-v4-5.template_debug.aar")
     if (localAarPath.exists()) {
         implementation(files(localAarPath))
     } else {

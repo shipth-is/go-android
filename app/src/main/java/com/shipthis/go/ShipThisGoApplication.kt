@@ -23,7 +23,5 @@ class ShipThisGoApplication : Application() {
         super.onCreate()
         // Initialize log handler after Hilt injection is ready
         LogInterceptor.setLogHandler(socketLogHandler)
-        // Check for and process crash logs
-        socketLogHandler.checkAndProcessCrashLogs()
     }
 }
