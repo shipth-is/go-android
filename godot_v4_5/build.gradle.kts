@@ -26,7 +26,7 @@ dependencies {
     if (localAarPath.exists()) {
         implementation(files(localAarPath))
     } else {
-        implementation("shipth.is:godot-lib-v4-5:0.0.30:template-debug@aar")
+        implementation("shipth.is:godot-lib-v4-5:+:template-debug@aar")
     }
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("com.google.android.play:core:1.10.3")

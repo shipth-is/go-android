@@ -13,6 +13,7 @@ android {
 
     dynamicFeatures += setOf(
         ":godot_v4_5",
+        ":godot_v4_4",
         ":godot_v3_x"
     )
 
@@ -103,7 +104,7 @@ dependencies {
     if (localAarPath.exists()) {
         implementation(files(localAarPath))
     } else {
-        implementation("shipth.is:godot-lib-v4-5:0.0.30:template-debug@aar")
+        implementation("shipth.is:godot-lib-v4-5:+:template-debug@aar")
     }
     implementation("androidx.core:core-splashscreen:1.0.1")
 

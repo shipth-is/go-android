@@ -22,11 +22,11 @@ android {
 dependencies {
     implementation(project(":app"))
     implementation("androidx.fragment:fragment:1.8.5")
-    val localAarPath = file("../app/libs/godot-lib-v3-x.template_debug.aar")
+    val localAarPath = file("../app/libs/godot-lib-v4-4.template_debug.aar")
     if (localAarPath.exists()) {
         implementation(files(localAarPath))
     } else {
-        implementation("shipth.is:godot-lib-v3-x:+:template-debug@aar")
+        implementation("shipth.is:godot-lib-v4-4:+:template-debug@aar")
     }
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("com.google.android.play:core:1.10.3")

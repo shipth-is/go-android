@@ -151,6 +151,7 @@ class HomeViewModel @Inject constructor(
         val className =
                 when (version) {
                     "4.5", "4.5.1" -> "com.shipthis.go.GodotAppv4_5"
+                    "4.4" -> "com.shipthis.go.GodotAppv4_4"
                     "3.6", "3.6.1", "3.6.2" -> "com.shipthis.go.GodotAppv3_x"
                     else -> "com.shipthis.go.GodotAppv4_5"
                 }
