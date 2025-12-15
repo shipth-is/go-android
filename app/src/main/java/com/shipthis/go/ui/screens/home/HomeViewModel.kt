@@ -105,6 +105,7 @@ class HomeViewModel @Inject constructor(
         val moduleName =
                 when (version) {
                     "4.5", "4.5.1" -> "godot_v4_5"
+                    "4.4" -> "godot_v4_4"
                     "3.6", "3.6.1", "3.6.2" -> "godot_v3_x"
                     else -> "godot_v4_5"
                 }
