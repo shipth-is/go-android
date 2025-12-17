@@ -104,9 +104,13 @@ class HomeViewModel @Inject constructor(
         val manager = SplitInstallManagerFactory.create(context)
         val moduleName =
                 when (version) {
-                    "4.5", "4.5.1" -> "godot_v4_5"
+                    "4.5" -> "godot_v4_5"
                     "4.4" -> "godot_v4_4"
-                    "3.6", "3.6.1", "3.6.2" -> "godot_v3_x"
+                    "4.3" -> "godot_v4_3"
+                    "4.2" -> "godot_v4_2"
+                    "4.1" -> "godot_v4_1"
+                    "4.0" -> "godot_v4_0"
+                    "3.6", "3.7" -> "godot_v3_x"
                     else -> "godot_v4_5"
                 }
 
@@ -151,9 +155,13 @@ class HomeViewModel @Inject constructor(
     private fun startGodotActivity(context: Context, version: String) {
         val className =
                 when (version) {
-                    "4.5", "4.5.1" -> "com.shipthis.go.GodotAppv4_5"
+                    "4.5" -> "com.shipthis.go.GodotAppv4_5"
                     "4.4" -> "com.shipthis.go.GodotAppv4_4"
-                    "3.6", "3.6.1", "3.6.2" -> "com.shipthis.go.GodotAppv3_x"
+                    "4.3" -> "com.shipthis.go.GodotAppv4_3"
+                    "4.2" -> "com.shipthis.go.GodotAppv4_2"
+                    "4.1" -> "com.shipthis.go.GodotAppv4_1"
+                    "4.0" -> "com.shipthis.go.GodotAppv4_0"
+                    "3.6", "3.7" -> "com.shipthis.go.GodotAppv3_x"
                     else -> "com.shipthis.go.GodotAppv4_5"
                 }
 

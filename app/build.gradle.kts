@@ -16,6 +16,8 @@ android {
         ":godot_v4_4",
         ":godot_v4_3",
         ":godot_v4_2",
+        ":godot_v4_1",
+        ":godot_v4_0",
         ":godot_v3_x"
     )
 

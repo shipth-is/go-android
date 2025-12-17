@@ -4,5 +4,7 @@
     <string name="title_godot_v4_4">Godot Engine 4.4</string>
     <string name="title_godot_v4_3">Godot Engine 4.3</string>
     <string name="title_godot_v4_2">Godot Engine 4.2</string>
+    <string name="title_godot_v4_1">Godot Engine 4.1</string>
+    <string name="title_godot_v4_0">Godot Engine 4.0</string>
     <string name="title_godot_v3_x">Godot Engine 3.x</string>
 </resources>
