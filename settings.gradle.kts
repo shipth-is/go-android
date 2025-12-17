@@ -31,4 +31,6 @@ rootProject.name = "ShipThis Go"
 include(":app")
 include(":godot_v4_5")
 include(":godot_v4_4")
+include(":godot_v4_3")
+include(":godot_v4_2")
 include(":godot_v3_x")

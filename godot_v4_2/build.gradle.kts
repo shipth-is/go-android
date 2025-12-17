@@ -22,7 +22,7 @@ android {
 dependencies {
     implementation(project(":app"))
     implementation("androidx.fragment:fragment:1.8.5")
-    val godotVersion = "4.4"
+    val godotVersion = "4.2"
     val godotVersionDash = godotVersion.replace('.', '-')
     val buildType = "debug"
 
