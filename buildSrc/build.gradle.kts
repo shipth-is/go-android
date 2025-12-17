@@ -10,7 +10,7 @@ repositories {
 
 dependencies {
     compileOnly(gradleApi())
-    implementation("com.android.tools.build:gradle:8.1.4") {
+    implementation("com.android.tools.build:gradle:8.5.1") {
         exclude(group = "com.squareup", module = "javapoet")
     }
     implementation("org.ow2.asm:asm:9.5")
