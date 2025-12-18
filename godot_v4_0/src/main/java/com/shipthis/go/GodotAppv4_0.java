@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-package com.godot.game;
+package com.shipthis.go;
 
 import org.godotengine.godotv4_0.FullScreenGodotApp;
 
