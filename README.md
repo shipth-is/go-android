@@ -13,3 +13,7 @@ The app supports multiple Godot versions by downloading the required engine vers
 * Streams **verbose runtime logs** to the CLI in real time
 * Builds are performed on **ShipThis cloud servers**
 * Designed for **debugging and quick iteration** during development
+
+## Demo
+
+[shipthis-go-demo.webm](https://github.com/user-attachments/assets/7d6a6267-7069-4f1f-96c0-116ee7d6b44b)
