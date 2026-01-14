@@ -70,7 +70,7 @@ class LoginViewModel @Inject constructor(
                 } else {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        error = "Failed to send OTP"
+                        error = "Failed to send code"
                     )
                 }
             } catch (e: Exception) {
@@ -87,12 +87,12 @@ class LoginViewModel @Inject constructor(
         val otp = _uiState.value.otpCode.trim()
 
         if (email.isBlank() || otp.isBlank()) {
-            _uiState.value = _uiState.value.copy(error = "Email and OTP code are required")
+            _uiState.value = _uiState.value.copy(error = "Email and code are required")
             return
         }
 
         if (otp.length != 6) {
-            _uiState.value = _uiState.value.copy(error = "OTP code must be 6 digits")
+            _uiState.value = _uiState.value.copy(error = "Code must be 6 digits")
             return
         }
 
@@ -108,6 +108,15 @@ class LoginViewModel @Inject constructor(
                     )
                 )
                 authRepository.saveUser(user)
+                
+                // Accept terms after successful login
+                try {
+                    authApiService.acceptTerms()
+                } catch (e: Exception) {
+                    // Log error but don't block login flow
+                    // Terms acceptance failure shouldn't prevent user from logging in
+                }
+                
                 onSuccess()
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
