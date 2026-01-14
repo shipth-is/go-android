@@ -15,6 +15,9 @@ interface AuthApiService {
 
     @GET("me")
     suspend fun getMe(): Self // Validates JWT, returns user without JWT
+
+    @POST("me/terms")
+    suspend fun acceptTerms(@Body request: EmptyBody = EmptyBody()): Self
 }
 
 // Request/Response models
@@ -31,4 +34,9 @@ data class OtpVerificationRequest(
     val otp: String,
     val source: String // e.g., "shipthis-go-1"
 )
+
+class EmptyBody {
+    // Empty body for POST requests that don't need data
+    // Serializes to {} in JSON
+}
 

@@ -32,7 +32,7 @@ fun ShipThisGoNavigation(
         composable("login") {
             LoginScreen(
                 onOtpRequested = { email ->
-                    val encodedEmail = java.net.URLEncoder.encode(email, "UTF-8")
+                    val encodedEmail = android.net.Uri.encode(email, "UTF-8")
                     navController.navigate("otp_verification/$encodedEmail")
                 }
             )
@@ -40,7 +40,7 @@ fun ShipThisGoNavigation(
 
         composable("otp_verification/{email}") { backStackEntry ->
             val encodedEmail = backStackEntry.arguments?.getString("email") ?: ""
-            val email = java.net.URLDecoder.decode(encodedEmail, "UTF-8")
+            val email = android.net.Uri.decode(encodedEmail)
             OtpVerificationScreen(
                 email = email,
                 onVerificationSuccess = {

@@ -3,10 +3,14 @@ package com.shipthis.go.ui.screens.login
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -22,6 +26,11 @@ fun OtpVerificationScreen(
     onBackToEmail: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     Column(
         modifier = Modifier
@@ -45,8 +54,10 @@ fun OtpVerificationScreen(
         OutlinedTextField(
             value = uiState.otpCode,
             onValueChange = viewModel::updateOtpCode,
-            label = { Text("OTP Code") },
-            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Code") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
             enabled = !uiState.isLoading,
             keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
@@ -84,7 +95,7 @@ fun OtpVerificationScreen(
                 if (uiState.isLoading) {
                     CircularProgressIndicator(modifier = Modifier.size(20.dp))
                 } else {
-                    Text("Verify")
+                    Text("Submit code →")
                 }
             }
         }
