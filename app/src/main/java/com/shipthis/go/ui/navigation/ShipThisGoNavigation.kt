@@ -12,6 +12,7 @@ import com.shipthis.go.data.repository.AuthRepository
 import com.shipthis.go.ui.screens.home.HomeScreen
 import com.shipthis.go.ui.screens.login.LoginScreen
 import com.shipthis.go.ui.screens.login.OtpVerificationScreen
+import com.shipthis.go.ui.screens.settings.SettingsScreen
 
 @Composable
 fun ShipThisGoNavigation(
@@ -55,7 +56,11 @@ fun ShipThisGoNavigation(
         }
 
         composable("home") {
-            HomeScreen()
+            HomeScreen(navController = navController)
+        }
+
+        composable("settings") {
+            SettingsScreen(navController = navController)
         }
     }
 
