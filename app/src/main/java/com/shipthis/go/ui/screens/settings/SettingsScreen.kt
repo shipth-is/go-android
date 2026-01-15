@@ -17,9 +17,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.shipthis.go.data.model.GDPRRequest
 import com.shipthis.go.data.model.GDPRRequestType
 import com.shipthis.go.ui.components.LoggedInScreenLayout
-import java.time.Instant
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
+import com.shipthis.go.util.DateUtil
 
 @Composable
 fun SettingsScreen(
@@ -253,21 +251,11 @@ fun PendingRequestCard(request: GDPRRequest) {
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Created: ${formatDate(request.createdAt)}",
+                text = "Created: ${DateUtil.formatDate(request.createdAt)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-    }
-}
-
-fun formatDate(iso8601String: String): String {
-    return try {
-        val instant = Instant.parse(iso8601String)
-        val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
-        formatter.format(instant.atZone(java.time.ZoneId.systemDefault()))
-    } catch (e: Exception) {
-        iso8601String // Fallback to original string if parsing fails
     }
 }
 
