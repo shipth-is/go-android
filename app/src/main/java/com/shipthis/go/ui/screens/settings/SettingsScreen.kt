@@ -148,21 +148,33 @@ fun YourDataSection(viewModel: SettingsViewModel) {
         Spacer(modifier = Modifier.height(24.dp))
 
         // Pending requests list
-        if (pendingRequests.isNotEmpty()) {
-            Text(
-                text = "Pending Requests",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+        if (pendingRequests.isNotEmpty() || isLoading) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "Pending Requests",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.heightIn(max = 200.dp)
-            ) {
-                items(pendingRequests) { request ->
-                    PendingRequestCard(request = request)
+            if (pendingRequests.isNotEmpty()) {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.heightIn(max = 200.dp)
+                ) {
+                    items(pendingRequests) { request ->
+                        PendingRequestCard(request = request)
+                    }
                 }
             }
 
@@ -189,14 +201,7 @@ fun YourDataSection(viewModel: SettingsViewModel) {
                 enabled = !hasPendingExport && !isLoading,
                 modifier = Modifier.weight(1f)
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                } else {
-                    Text("Export Data")
-                }
+                Text("Export Data")
             }
 
             Button(
