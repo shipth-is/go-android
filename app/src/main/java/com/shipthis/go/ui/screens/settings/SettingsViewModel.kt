@@ -35,7 +35,7 @@ class SettingsViewModel @Inject constructor(
     private val _showDeleteConfirmation = MutableStateFlow(false)
     val showDeleteConfirmation: StateFlow<Boolean> = _showDeleteConfirmation.asStateFlow()
 
-    val pendingRequests: StateFlow<List<GDPRRequest>> = _gdprRequests.asStateFlow()
+    val pendingRequests: StateFlow<List<GDPRRequest>> = _gdprRequests
         .map { requests ->
             requests.filter { it.status == GDPRRequestStatus.PENDING }
         }
