@@ -1,5 +1,6 @@
 package com.shipthis.go.data.api
 
+import com.shipthis.go.data.model.GDPRRequest
 import com.shipthis.go.data.model.Self
 import com.shipthis.go.data.model.SelfWithJWT
 import retrofit2.http.Body
@@ -18,6 +19,15 @@ interface AuthApiService {
 
     @POST("me/terms")
     suspend fun acceptTerms(@Body request: EmptyBody = EmptyBody()): Self
+
+    @GET("me/gdpr")
+    suspend fun getGdprStatus(): List<GDPRRequest>
+
+    @POST("me/gdpr/export")
+    suspend fun requestGdprExport(@Body request: EmptyBody = EmptyBody()): Unit
+
+    @POST("me/gdpr/delete")
+    suspend fun requestGdprDelete(@Body request: EmptyBody = EmptyBody()): Unit
 }
 
 // Request/Response models
