@@ -6,6 +6,7 @@ import com.shipthis.go.data.model.GDPRRequest
 import com.shipthis.go.data.model.GDPRRequestStatus
 import com.shipthis.go.data.model.GDPRRequestType
 import com.shipthis.go.data.repository.AuthRepository
+import com.shipthis.go.util.ErrorHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val errorHandler: ErrorHandler
 ) : ViewModel() {
 
     val currentUser = authRepository.currentUser
@@ -76,7 +78,7 @@ class SettingsViewModel @Inject constructor(
                 _error.value = null
                 _gdprRequests.value = authRepository.fetchGdprStatus()
             } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to load GDPR requests"
+                _error.value = errorHandler.getErrorMessage(e)
             } finally {
                 _isLoading.value = false
             }
@@ -92,7 +94,7 @@ class SettingsViewModel @Inject constructor(
                 // Refresh the list after successful request
                 loadGdprRequests()
             } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to request data export"
+                _error.value = errorHandler.getErrorMessage(e)
             } finally {
                 _isLoading.value = false
             }
@@ -109,7 +111,7 @@ class SettingsViewModel @Inject constructor(
                 // Refresh the list after successful request
                 loadGdprRequests()
             } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to request account deletion"
+                _error.value = errorHandler.getErrorMessage(e)
             } finally {
                 _isLoading.value = false
             }
