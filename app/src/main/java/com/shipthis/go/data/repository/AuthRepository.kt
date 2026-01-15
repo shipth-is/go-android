@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.shipthis.go.data.api.AuthApiService
+import com.shipthis.go.data.api.EmptyBody
+import com.shipthis.go.data.model.GDPRRequest
 import com.shipthis.go.data.model.Self
 import com.shipthis.go.data.model.SelfWithJWT
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -75,6 +77,8 @@ class AuthRepository @Inject constructor(
                 details = currentSelf.details,
                 email = currentSelf.email,
                 id = currentSelf.id,
+                isBetaUser = currentSelf.isBetaUser,
+                accountType = currentSelf.accountType,
                 updatedAt = currentSelf.updatedAt
             )
             saveUserInternal(updatedUser)
@@ -115,6 +119,19 @@ class AuthRepository @Inject constructor(
     // Call this when we get a 401 to clear invalid JWT
     fun handleUnauthorized() {
         clearSession()
+    }
+
+    // GDPR methods
+    suspend fun fetchGdprStatus(): List<GDPRRequest> {
+        return authApiService.getGdprStatus()
+    }
+
+    suspend fun requestExport() {
+        authApiService.requestGdprExport(EmptyBody())
+    }
+
+    suspend fun requestDelete() {
+        authApiService.requestGdprDelete(EmptyBody())
     }
 }
 

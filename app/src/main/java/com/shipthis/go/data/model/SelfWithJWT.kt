@@ -9,6 +9,10 @@ data class SelfWithJWT(
     val details: UserDetails,
     val email: String,
     val id: String,
+    @SerializedName("isBetaUser")
+    val isBetaUser: Boolean,
+    @SerializedName("accountType")
+    val accountType: TierTypes,
     @SerializedName("updatedAt")
     val updatedAt: String // ISO 8601 format
 )
