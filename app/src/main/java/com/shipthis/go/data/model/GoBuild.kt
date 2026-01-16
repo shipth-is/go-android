@@ -71,7 +71,7 @@ data class Project(
     val createdAt: String,
     @SerializedName("updatedAt")
     val updatedAt: String,
-    @Embedded(prefix = "details_")
+    @Embedded(prefix = "project_details_")
     val details: ProjectDetails
 )
 
