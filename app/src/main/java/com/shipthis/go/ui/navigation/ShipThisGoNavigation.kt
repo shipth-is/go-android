@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.shipthis.go.data.repository.AuthRepository
+import com.shipthis.go.ui.screens.builds.BuildsScreen
 import com.shipthis.go.ui.screens.home.HomeScreen
 import com.shipthis.go.ui.screens.login.LoginScreen
 import com.shipthis.go.ui.screens.login.OtpVerificationScreen
@@ -57,6 +58,10 @@ fun ShipThisGoNavigation(
 
         composable("home") {
             HomeScreen(navController = navController)
+        }
+
+        composable("builds") {
+            BuildsScreen(navController = navController)
         }
 
         composable("settings") {

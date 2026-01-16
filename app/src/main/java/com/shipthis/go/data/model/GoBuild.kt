@@ -1,12 +1,20 @@
 package com.shipthis.go.data.model
 
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import com.google.gson.annotations.SerializedName
+import com.shipthis.go.data.local.Converters
 
 /**
  * Data class representing a GoBuild from the ShipThis API
  * Based on the PublicGoBuild type from the server
  */
+@Entity(tableName = "go_builds")
+@TypeConverters(Converters::class)
 data class GoBuild(
+    @PrimaryKey
     val id: String,
     @SerializedName("jobId")
     val jobId: String,
@@ -23,8 +31,10 @@ data class GoBuild(
     val createdAt: String,
     @SerializedName("updatedAt")
     val updatedAt: String,
+    @Embedded(prefix = "jobDetails_")
     @SerializedName("jobDetails")
     val jobDetails: JobDetails,
+    @Embedded(prefix = "project_")
     val project: Project
 )
 
@@ -61,6 +71,7 @@ data class Project(
     val createdAt: String,
     @SerializedName("updatedAt")
     val updatedAt: String,
+    @Embedded(prefix = "details_")
     val details: ProjectDetails
 )
 

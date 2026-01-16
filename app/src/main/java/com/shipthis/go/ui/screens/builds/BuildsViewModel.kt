@@ -1,4 +1,4 @@
-package com.shipthis.go.ui.screens.home
+package com.shipthis.go.ui.screens.builds
 
 import android.content.Context
 import android.content.Intent
@@ -10,6 +10,7 @@ import com.google.android.play.core.splitinstall.SplitInstallRequest
 import com.google.android.play.core.splitinstall.SplitInstallSessionState
 import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListener
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
+import com.shipthis.go.data.model.GoBuild
 import com.shipthis.go.data.repository.GoBuildRepository
 import com.shipthis.go.util.CrashMarker
 import com.shipthis.go.util.SocketLogHandler
@@ -24,57 +25,48 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class BuildsViewModel @Inject constructor(
     private val repository: GoBuildRepository,
     private val socketLogHandler: SocketLogHandler
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUiState())
-    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    private val _isLoading = MutableStateFlow(false)
+    private val _error = MutableStateFlow<String?>(null)
 
-    fun updateBuildId(buildId: String) {
-        _uiState.value = _uiState.value.copy(buildId = buildId)
-    }
+    // Observe builds from the database
+    val builds: StateFlow<List<GoBuild>> = repository.getAllGoBuilds()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
-    fun submitBuildId(context: Context) {
-        val buildId = _uiState.value.buildId
-        if (buildId.isBlank()) {
-            _uiState.value = _uiState.value.copy(error = "Build ID cannot be empty")
-            return
-        }
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    val error: StateFlow<String?> = _error.asStateFlow()
 
+    fun launchBuild(context: Context, goBuild: GoBuild) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                _uiState.value = _uiState.value.copy(isLoading = true, error = null, data = null)
-
-                updateStatus("Fetching build details…")
-
-                // Fetch the GoBuild from the API
-                val goBuild = repository.getGoBuild(buildId)
-
-                updateStatus("Build found: ${goBuild.project.name}")
-
-                // Save the build to the local database
-                repository.saveGoBuild(goBuild)
+                _isLoading.value = true
+                _error.value = null
 
                 val assetsDir = File(context.filesDir, "assets")
                 val zipFile = File(context.cacheDir, "game.zip")
 
-                updateStatus("Cleaning old files…")
+                // Clean old files
                 deleteRecursively(assetsDir)
                 assetsDir.mkdirs()
 
-                updateStatus("Downloading game…")
+                // Download game
+                downloadFile(goBuild.url, zipFile) { }
 
-                downloadFile(goBuild.url, zipFile) { p -> updateStatus("Downloading… $p%") }
-
-                updateStatus("Unzipping game…")
-                unzip(zipFile, assetsDir) { p -> updateStatus("Unzipping… $p%") }
-
-                updateStatus("Launching…")
+                // Unzip game
+                unzip(zipFile, assetsDir) { }
 
                 // Set buildId in log handler for runtime logging
                 socketLogHandler.setBuildId(goBuild.id)
@@ -82,23 +74,14 @@ class HomeViewModel @Inject constructor(
                 // Mark the start of this runtime session
                 CrashMarker.markStart(context, goBuild.id)
 
-                var gameEngineVersion = goBuild.jobDetails.gameEngineVersion
-
+                val gameEngineVersion = goBuild.jobDetails.gameEngineVersion
                 launchGame(context, gameEngineVersion)
 
-                _uiState.value =
-                        _uiState.value.copy(
-                                isLoading = false,
-                                data =
-                                        "Build '${goBuild.project.name}' (${goBuild.id}) launched successfully!",
-                                error = null
-                        )
+                _isLoading.value = false
+                _error.value = null
             } catch (e: Exception) {
-                _uiState.value =
-                        _uiState.value.copy(
-                                isLoading = false,
-                                error = e.message ?: "Failed: unknown error"
-                        )
+                _isLoading.value = false
+                _error.value = e.message ?: "Failed to launch build"
             }
         }
     }
@@ -106,16 +89,16 @@ class HomeViewModel @Inject constructor(
     private fun launchGame(context: Context, version: String) {
         val manager = SplitInstallManagerFactory.create(context)
         val moduleName =
-                when (version) {
-                    "4.5" -> "godot_v4_5"
-                    "4.4" -> "godot_v4_4"
-                    "4.3" -> "godot_v4_3"
-                    "4.2" -> "godot_v4_2"
-                    "4.1" -> "godot_v4_1"
-                    "4.0" -> "godot_v4_0"
-                    "3.6", "3.7" -> "godot_v3_x"
-                    else -> "godot_v4_5"
-                }
+            when (version) {
+                "4.5" -> "godot_v4_5"
+                "4.4" -> "godot_v4_4"
+                "4.3" -> "godot_v4_3"
+                "4.2" -> "godot_v4_2"
+                "4.1" -> "godot_v4_1"
+                "4.0" -> "godot_v4_0"
+                "3.6", "3.7" -> "godot_v3_x"
+                else -> "godot_v4_5"
+            }
 
         if (manager.installedModules.contains(moduleName)) {
             startGodotActivity(context, version)
@@ -130,8 +113,8 @@ class HomeViewModel @Inject constructor(
                     when (state.status()) {
                         SplitInstallSessionStatus.DOWNLOADING -> {
                             Log.i(
-                                    "ShipThis",
-                                    "Downloading $moduleName (${state.bytesDownloaded()}/${state.totalBytesToDownload()})"
+                                "ShipThis",
+                                "Downloading $moduleName (${state.bytesDownloaded()}/${state.totalBytesToDownload()})"
                             )
                         }
                         SplitInstallSessionStatus.INSTALLING -> {
@@ -157,25 +140,21 @@ class HomeViewModel @Inject constructor(
 
     private fun startGodotActivity(context: Context, version: String) {
         val className =
-                when (version) {
-                    "4.5" -> "com.shipthis.go.GodotAppv4_5"
-                    "4.4" -> "com.shipthis.go.GodotAppv4_4"
-                    "4.3" -> "com.shipthis.go.GodotAppv4_3"
-                    "4.2" -> "com.shipthis.go.GodotAppv4_2"
-                    "4.1" -> "com.shipthis.go.GodotAppv4_1"
-                    "4.0" -> "com.shipthis.go.GodotAppv4_0"
-                    "3.6", "3.7" -> "com.shipthis.go.GodotAppv3_x"
-                    else -> "com.shipthis.go.GodotAppv4_5"
-                }
+            when (version) {
+                "4.5" -> "com.shipthis.go.GodotAppv4_5"
+                "4.4" -> "com.shipthis.go.GodotAppv4_4"
+                "4.3" -> "com.shipthis.go.GodotAppv4_3"
+                "4.2" -> "com.shipthis.go.GodotAppv4_2"
+                "4.1" -> "com.shipthis.go.GodotAppv4_1"
+                "4.0" -> "com.shipthis.go.GodotAppv4_0"
+                "3.6", "3.7" -> "com.shipthis.go.GodotAppv3_x"
+                else -> "com.shipthis.go.GodotAppv4_5"
+            }
 
         val intent = Intent()
         intent.setClassName(context.packageName, className)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
-    }
-
-    private fun updateStatus(msg: String) {
-        _uiState.value = _uiState.value.copy(data = msg)
     }
 
     // ---- IO helpers ----
@@ -187,7 +166,7 @@ class HomeViewModel @Inject constructor(
         conn.connect()
         val code = conn.responseCode
         if (code != HttpURLConnection.HTTP_OK)
-                throw IOException("HTTP $code: ${conn.responseMessage}")
+            throw IOException("HTTP $code: ${conn.responseMessage}")
 
         val length = conn.contentLength
         var total = 0L
@@ -260,11 +239,6 @@ class HomeViewModel @Inject constructor(
         if (f.isDirectory) f.listFiles()?.forEach { deleteRecursively(it) }
         f.delete()
     }
+
 }
 
-data class HomeUiState(
-        val isLoading: Boolean = false,
-        val data: String? = null,
-        val error: String? = null,
-        val buildId: String = ""
-)
